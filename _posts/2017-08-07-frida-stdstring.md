@@ -9,7 +9,7 @@ Here's the question:
 >How do I print the value of the third argument for this function?
 >
 > ```cpp
->	CommonUtils::decodeCStringForBase64(char const*, char const*, std::string &)
+>CommonUtils::decodeCStringForBase64(char const*, char const*, std::string &)
 > ```
 >
 >Currently I can print the first and second argument by using `Memory.readUtf8String`.
@@ -311,6 +311,8 @@ So we'll just use offset from nm output, and add it to the base address of libc+
 var string_c_str_ptr = Module.findBaseAddress('libc++.1.dylib').add(0x3f450);
 var string_c_str = new NativeFunction(string_c_str_ptr, 'pointer', ['pointer']);
 ```
+
+UPD: looks like `Module.enumerateSymbols` was added into frida. I'm still leaving this to demonstrate how custom offsets can be used.
 
 ### Attaching
 We should use the same code as we had with toUTF8Ref:
