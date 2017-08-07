@@ -1,8 +1,10 @@
+title: "stek29.rocks"
+description: "Is this blog?"
+theme: jekyll-theme-slate
+
 defaults:
   -
     scope:
       path: ""
     values:
       layout: "default"
-      
-theme: jekyll-theme-slate
