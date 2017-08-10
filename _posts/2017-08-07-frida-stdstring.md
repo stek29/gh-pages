@@ -326,3 +326,10 @@ Interceptor.attach(ptr("0x103e2c3d0"), function() {
 ```
 
 Switch back to `interceptMe` once more, and type `I love Frida <3`. See the same string printed in terminal with frida. We did it once again, yay :D
+
+### UPD: Simpliest way
+You can also just look how std::string::c_str() works, and replicate the same behaviour.
+It's done already for libc++ (and Apple's libstdc++), and is avaliable from frida-codeshare [here](https://codeshare.frida.re/@oleavr/read-std-string/)
+
+Pass pointer from `this.context.rdi` to `readStdString` the same way you did with `string_c_str` and `toUTF8Ref`.
+
