@@ -153,8 +153,8 @@ bool rootedRamdisk(void) {
 	return
 		root[0] == 'm' &&
 		root[1] == 'd' &&
-		// root[3] doesn't matter		
-		root[0] == '\0';
+		// root[2] doesn't matter		
+		root[3] == '\0';
 }
 ```
 
