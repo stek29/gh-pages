@@ -111,15 +111,27 @@ Here's sample code from Meredian:
 const unsigned OFF_LWVM__PARTITIONS = 0x1a0;
 const unsigned OFF_LWVMPART__ISWP = 0x28;
 
-void fix_root_iswriteprotected(void) {
-	io_service_t service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("LightweightVolumeManager"));
-	uint64_t inkernel = find_port_address(service);
+bool fix_root_iswriteprotected(void) {
+    io_service_t service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("LightweightVolumeManager"));
+    if (!MACH_PORT_VALID(service)) return false;
 
-	uint64_t lwvm_kaddr = rk64(inkernel + OFF_IPC_PORT__IP_KOBJECT);
-	uint64_t rootp_kaddr = rk64(lwvm_kaddr + OFF_LWVM__PARTITIONS);
-	uint64_t rootp_iswp_addr = rootp_kaddr + OFF_LWVMPART__ISWP;
-	// assert(rk64(rootp_iswp_addr) == 1)
-	wk64(rootp_iswp_addr, 0);
+    uint64_t inkernel = find_port_address(service);
+
+    uint64_t lwvm_kaddr = rk64(inkernel + OFF_IPC_PORT__IP_KOBJECT);
+    uint64_t rootp_kaddr = rk64(lwvm_kaddr + OFF_LWVM__PARTITIONS);
+    uint64_t varp_kaddr = rk64(lwvm_kaddr + OFF_LWVM__PARTITIONS + sizeof(void*));
+
+    uint64_t rootp_iswp_addr = rootp_kaddr + OFF_LWVMPART__ISWP;
+    uint64_t varp_iswp_addr = varp_kaddr + OFF_LWVMPART__ISWP;
+    if (rk64(varp_iswp_addr) != 0) {
+        printf("rk64(varp_iswp_addr) != 0!\n");
+        return false;
+    }
+    if (rk64(rootp_iswp_addr) != 1) {
+        printf("rk64(rootp_iswp_addr) != 1!\n");
+    }
+    wk64(rootp_iswp_addr, 0);
+    return true;
 }
 ```
 
@@ -216,23 +228,64 @@ So, `rd=md0` can be added into `boot_args.CommandLine` to make `rootedRamdisk` r
 Sample code from Meredian:
 
 ```c
-void fake_rootedramdisk(void) {
-	unsigned cmdline_offset;
-	uint64_t pestate_bootargs = find_boot_args(&cmdline_offset);
+#define BOOTARGS_PATCH "rd=mdx"
+bool fake_rootedramdisk(void) {
+    unsigned cmdline_offset;
+    uint64_t pestate_bootargs = find_boot_args(&cmdline_offset);
 
-	if (pestate_bootargs == 0) {
-		return;
-	}
+    if (pestate_bootargs == 0) {
+        return false;
+    }
 
-	uint64_t struct_boot_args = rk64(pestate_bootargs);
-	uint64_t boot_args_cmdline = struct_boot_args + cmdline_offset;
+    uint64_t struct_boot_args = rk64(pestate_bootargs);
+    uint64_t boot_args_cmdline = struct_boot_args + cmdline_offset;
 
-	// max size is 256 on arm
-	char buf_bootargs[256];
+    // max size is 256 on arm
+    char buf_bootargs[256];
 
-	rkbuffer(boot_args_cmdline, buf_bootargs, sizeof(buf_bootargs));
-	strcat(buf_bootargs, " rd=md0 ");
-	wkbuffer(boot_args_cmdline, buf_bootargs, sizeof(buf_bootargs));
+    rkbuffer(boot_args_cmdline, buf_bootargs, sizeof(buf_bootargs));
+    strcat(buf_bootargs, BOOTARGS_PATCH);
+    wkbuffer(boot_args_cmdline, buf_bootargs, sizeof(buf_bootargs));
+
+    bzero(buf_bootargs, sizeof(buf_bootargs));
+    size_t size = sizeof(buf_bootargs);
+    int err = sysctlbyname("kern.bootargs", buf_bootargs, &size, NULL, 0);
+
+    if (err) {
+        printf("sysctlbyname(kern.bootargs) failed\n");
+        return false;
+    }
+
+    if (strstr(buf_bootargs, BOOTARGS_PATCH) == NULL) {
+        printf("kern.bootargs doesn't contain '" BOOTARGS_PATCH "' after patch!\n");
+        printf("kern.bootargs: '%s'\n", buf_bootargs);
+        return false;
+    }
+
+    return true;
 }
 ```
 
+
+Btw, boot_args seem to be located in some weird region inside of that 4GB map where main kernel binary resides, and they're always aligned at page start.
+I don't really know much about that region or about how are they passed, but with SSH to ByteGig's iPhone 8 I was able to modify them.
+Even if they were in RO region, just changing pointer in PE_state would've worked.
+
+### More info & deeper explaination with examples
+[See screenshots from Discord](/assets/lwvm-discord.pdf?cloudflarepls)
+
+### References
+- [QiLin writeup by J](http://newosxbook.com/QiLin/qilin.pdf)
+- [FriedAppleTeam's Jailbreak DIY talk](https://www.blackhat.com/docs/asia-17/materials/asia-17-Bazaliy-Fried-Apples-Jailbreak-DIY.pdf)
+- [Some info from iOSRE](https://github.com/kpwn/iOSRE/wiki/Kernel-Patch-Protection-(KPP))
+
+### Useful tools
+- [iometa](https://github.com/Siguza/iometa)
+- [ios-kern-utils](https://github.com/Siguza/ios-kern-utils)
+- [iokit-utils](https://github.com/Siguza/iokit-utils)
+- [memctl](http://github.com/bazad/memctl)
+
+---
+
+Huge thanks to Siguza for his wonderful tools, for general help and some other goodies :)
+Thanks FoxletFox for SSH to the iPhone
