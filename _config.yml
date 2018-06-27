@@ -1,10 +1,14 @@
-title: "stek29.rocks"
-description: "Is this blog?"
-theme: jekyll-theme-slate
+title: stek29.rocks
+author: Viktor Oreshkin
+email: me@stek29.rocks
+description: Is this blog?
+theme: minima
 
-defaults:
-  -
-    scope:
-      path: ""
-    values:
-      layout: "default"
+twitter_username: stek29
+github_username: stek29
+
+minima:
+  date_format: "%b %-d, %Y"
+
+plugins:
+ - jekyll-feed
