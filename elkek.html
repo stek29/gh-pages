@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flipclock/0.7.8/flipclock.css">
+        <meta charset="utf-8">
+        <style type="text/css">
+            html, body {
+                width: 100%;
+                height: 100%;
+            }
+
+            .clock-wrap {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                width: 100%;
+                height: 100%;
+            }
+
+            #your-clock {
+                width: auto;
+            }
+
+            h1 {
+                font-family: "Helvetica Neue", Helvetica, sans-serif;
+            }
+        </style>
+        <title>элкек</title>
+    </head>
+    <body>
+        <div class="clock-wrap">
+            <h1>До элтеха осталось</h1>
+            <div id="your-clock">enable js</div>
+        </div>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/flipclock/0.7.8/flipclock.min.js"></script>
+        <script>
+            $('#your-clock').FlipClock(
+                1547186400 - (new Date()).getTime()/1000,
+                {
+                    countdown: true,
+                    clockFace: 'DailyCounter',
+                    language: 'ru',
+                }
+            );
+            // зочем ты код смотришь, к экзамену лучше готовься
+        </script>
+    </body>
+</html>
