@@ -72,4 +72,11 @@ UPDATE:
 
 btw, if eosd keeps crashing, it doesn't reply to `watchd` watchdog, which makes `watchd` cause panic of touchbar, which makes host panic -- abuse TouchBar to DoS the host :)
 
+And, for reason I didn't really look into, stack canary is present in the `eos_message_recieve`, but it's absolutely useless!
+
+If you want to exploit it, here's what I'd do:
+- Crash once with invalid pc
+- Obtain crash report from `/Library/Logs/DiagnosticReports/iBridge-eosd_*`, get the dyld shared cache slide
+- hack it
+
 Oh, and just for the reference, I think I found this like a year ago (Feb 2018) -- judging by tweets I made on TouchBar from that time and by private discussions I've had about the vuln.
