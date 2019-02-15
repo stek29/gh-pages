@@ -6,7 +6,7 @@ title: TouchBar overflow
 
 That reminded me of my long abandoned research on first gen touchbar, and I've decieded to publish it, considering that I'm likely not going to get back to it.
 
-There's a very dump stack overflow vulnerability in eosd -- one of the main daemons which runs as unsandboxed root -- on first gen iBridge.
+There's a very dumb stack overflow vulnerability in eosd -- one of the main daemons which runs as unsandboxed root -- on first gen iBridge.
 
 Both eosd (on iBridge) and EmbeddedOSSupportHost.framework (on macOS) have common utility functions for eos_message's. For more info, have a look at [github repo supplementing this post](https://github.com/stek29/touchbar_overflow).
 
@@ -67,3 +67,9 @@ Finally, here's the demo (see `poc.sh` in the [repo](https://github.com/stek29/t
 [![asciicast](https://asciinema.org/a/FjTSc8YtedqYNd6tHsEniOxjv.svg)](https://asciinema.org/a/FjTSc8YtedqYNd6tHsEniOxjv)
 
 Sorry for all the typos -- didn't have much time to do this nicely, and if I didn't do it now, I'd most likely put it off again.
+
+UPDATE:
+
+btw, if eosd keeps crashing, it doesn't reply to `watchd` watchdog, which makes `watchd` cause panic of touchbar, which makes host panic -- abuse TouchBar to DoS the host :)
+
+Oh, and just for the reference, I think I found this like a year ago (Feb 2018) -- judging by tweets I made on TouchBar from that time and by private discussions I've had about the vuln.
