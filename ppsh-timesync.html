@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPSHT Time Sync</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        ol {
+            text-align: left;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>PPSHT Web Time Sync</h1>
+        <ol>
+            <li>Click the button to generate a special file to set time on your camera</li>
+            <li>Save the generated file as <code>update_time.txt</code> to the SD card -- either via Card Reader, or by
+                plugging in your camera</li>
+            <li>Take a photo like you normally do, and connect your camera to verify that photos have correct time</li>
+        </ol>
+        <button onclick="generateUpdateTimeFile()">Generate and Save File</button>
+    </div>
+
+    <script>
+        function generateUpdateTimeFile() {
+            var now = new Date();
+            var formattedTime = now.toISOString().slice(0, 16).replace('T', ' ').replace(/-/g, '/');
+
+            var filename = 'update_time.txt';
+
+            var blob = new Blob([formattedTime], { type: 'text/plain' });
+
+            var link = document.createElement('a');
+            link.download = filename;
+            link.href = window.URL.createObjectURL(blob);
+            link.style.display = 'none';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+
+</html>
