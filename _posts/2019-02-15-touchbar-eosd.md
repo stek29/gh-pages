@@ -1,5 +1,5 @@
 ---
-title: TouchBar overflow
+title: CVE-2019-8569 TouchBar overflow
 ---
 
 [Duo Labs have recently published another post in their series on T2 coprocessor/iBridge](https://duo.com/labs/research/apple-t2-xpc). Kinda sad they've "burned" remotectl tho -- Apple worked so hard on restricting coproc interface, and left such a usefult debugging tool for good guys to (ab)use!
@@ -80,3 +80,13 @@ If you want to exploit it, here's what I'd do:
 - hack it
 
 Oh, and just for the reference, I think I found this like a year ago (Feb 2018) -- judging by tweets I made on TouchBar from that time and by private discussions I've had about the vuln.
+
+UPDATE 2024-04-13:
+CVE-2019-8569 was assigned to this vulnerability, as far as I am aware.
+
+After releasing this article, I was contacted by an anonymous individual who informed me that the issue rendering LLVM's stack protection useless in this case had been fixed: [D64757](https://reviews.llvm.org/D64757) and [D64759](https://reviews.llvm.org/D64759).
+
+Please refer to the vulnerability notice VU#129209 (https://kb.cert.org/vuls/id/129209/).
+
+The individual noticed my name mentioned in an internal Apple tracker, where it was linked to those LLVM fixes.
+So I guess this was a zeroday afterall.
